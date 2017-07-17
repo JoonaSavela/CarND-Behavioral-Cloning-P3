@@ -8,15 +8,13 @@ with open('./data/driving_log.csv') as csv_file:
     reader = csv.reader(csv_file)
     next(reader, None)
     for line in reader:
-        lines.append(line)
-
-print(lines[0][0])
-print(lines[0][3])
+        if any(field.strip() for field in row):
+            lines.append(line)
 
 images = []
 measurements = []
 for line in lines:
-    source_path = line[0]
+    source_path = line[0].replace('\\', '/')
     filename = source_path.split('/')[-1]
     current_path = './data/IMG/' + filename
     image = cv2.imread(current_path)
