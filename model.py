@@ -41,13 +41,19 @@ train_generator = generator(train_samples, batch_size=32)
 validation_generator = generator(validation_samples, batch_size=32)
 
 from keras.models import Sequential
-from keras.layers import Flatten, Dense, Lambda, Cropping2D
+from keras.layers import Flatten, Dense, Lambda, Cropping2D, Convolution2D
 
 model = Sequential()
 model.add(Cropping2D(cropping=((60,25), (0,0)), input_shape=(160, 320, 3)))
 model.add(Lambda(lambda x: (x / 255.0) - 0.5))
-
+model.add(Convolution2D(24, 5, 5, subsample=(2, 2)))
+model.add(Convolution2D(36, 5, 5, subsample=(2, 2)))
+model.add(Convolution2D(48, 5, 5, subsample=(2, 2)))
+model.add(Convolution2D(64, 3, 3, subsample=(2, 2)))
 model.add(Flatten())
+model.add(Dense(100, activation='relu'))
+model.add(Dense(50, activation='relu'))
+model.add(Dense(10, activation='relu'))
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
