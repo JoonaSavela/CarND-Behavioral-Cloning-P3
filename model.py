@@ -27,21 +27,25 @@ def generator(samples, batch_size=32):
             for batch_sample in batch_samples:
                 source_path = batch_sample[0].replace('\\', '/')
                 name = './data/IMG/'+source_path.split('/')[-1]
-                center_image = cv2.imread(name)
-                center_angle = float(batch_sample[3])
-                images.append(center_image)
-                angles.append(center_angle)
+                image = cv2.imread(name)
+                angle = float(batch_sample[3])
+                images.append(image)
+                angles.append(angle)
+                flipped_image = np.fliplr(image)
+                flipped_angle = -angle
+                images.append(flipped_image)
+                angles.append(flipped_angle)
 
             X_train = np.array(images)
             y_train = np.array(angles)
             yield sklearn.utils.shuffle(X_train, y_train)
 
 
-train_generator = generator(train_samples, batch_size=32)
-validation_generator = generator(validation_samples, batch_size=32)
+train_generator = generator(train_samples)
+validation_generator = generator(validation_samples)
 
 from keras.models import Sequential
-from keras.layers import Flatten, Dense, Lambda, Cropping2D, Convolution2D
+from keras.layers import Flatten, Dense, Lambda, Cropping2D, Convolution2D, Dropout
 
 model = Sequential()
 model.add(Cropping2D(cropping=((60,25), (0,0)), input_shape=(160, 320, 3)))
@@ -51,15 +55,17 @@ model.add(Convolution2D(36, 5, 5, subsample=(2, 2)))
 model.add(Convolution2D(48, 5, 5, subsample=(2, 2)))
 model.add(Convolution2D(64, 3, 3, subsample=(2, 2)))
 model.add(Flatten())
+model.add(Dropout(0.5))
 model.add(Dense(100, activation='relu'))
+model.add(Dropout(0.5))
 model.add(Dense(50, activation='relu'))
+model.add(Dropout(0.5))
 model.add(Dense(10, activation='relu'))
+model.add(Dropout(0.5))
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
-model.fit_generator(train_generator, samples_per_epoch = \
-            len(train_samples), validation_data=validation_generator, \
-            nb_val_samples=len(validation_samples), nb_epoch=5)
+model.fit_generator(train_generator, samples_per_epoch=len(train_samples) * 2, validation_data=validation_generator, nb_val_samples=len(validation_samples) * 2, nb_epoch=5)
 
 model.save('model.h5')
 print('Model saved')
