@@ -50,10 +50,12 @@ train_generator = generator(train_samples)
 validation_generator = generator(validation_samples)
 
 from keras.models import Sequential
+from keras.backend import tf
 from keras.layers import Flatten, Dense, Lambda, Cropping2D, Convolution2D, Dropout, ZeroPadding2D
 
 model = Sequential()
-model.add(Cropping2D(cropping=((60,25), (0,0)), input_shape=(160, 320, 3)))
+model.add(Lambda(lambda img: tf.image.resize_images(img, (80, 160)), input_shape=(160, 320, 3)))
+model.add(Cropping2D(cropping=((int(65/2),int(25/2)), (0,0))))
 model.add(Lambda(lambda x: (x / 255.0) - 0.5))
 model.add(Convolution2D(24, 5, 5, subsample=(2, 2), activation='relu'))
 model.add(ZeroPadding2D())
