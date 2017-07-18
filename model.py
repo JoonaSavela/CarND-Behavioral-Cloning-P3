@@ -15,26 +15,31 @@ with open('./data/driving_log.csv') as csv_file:
 from sklearn.model_selection import train_test_split
 train_samples, validation_samples = train_test_split(lines, test_size=0.2)
 
-def generator(samples, batch_size=32):
+data_multiplier = 6
+correction_factor = 0.2
+
+def generator(samples, batch_size = 8 * data_multiplier):
     num_samples = len(samples)
     while 1: # Loop forever so the generator never terminates
         sklearn.utils.shuffle(samples)
-        for offset in range(0, num_samples, batch_size):
+        for offset in range(0, num_samples, int(batch_size / data_multiplier)):
             batch_samples = samples[offset:offset+batch_size]
 
             images = []
             angles = []
             for batch_sample in batch_samples:
-                source_path = batch_sample[0].replace('\\', '/')
-                name = './data/IMG/'+source_path.split('/')[-1]
-                image = cv2.imread(name)
-                angle = float(batch_sample[3])
-                images.append(image)
-                angles.append(angle)
-                flipped_image = np.fliplr(image)
-                flipped_angle = -angle
-                images.append(flipped_image)
-                angles.append(flipped_angle)
+                for i in range(3):
+                    source_path = batch_sample[i].replace('\\', '/')
+                    name = './data/IMG/'+source_path.split('/')[-1]
+                    image = cv2.imread(name)
+                    correction = (1 / 2) * correction_factor * i * (-3 * i + 5)
+                    angle = float(batch_sample[3]) + correction
+                    images.append(image)
+                    angles.append(angle)
+                    flipped_image = np.fliplr(image)
+                    flipped_angle = -angle
+                    images.append(flipped_image)
+                    angles.append(flipped_angle)
 
             X_train = np.array(images)
             y_train = np.array(angles)
@@ -65,7 +70,7 @@ model.add(Dropout(0.5))
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
-model.fit_generator(train_generator, samples_per_epoch=len(train_samples) * 2, validation_data=validation_generator, nb_val_samples=len(validation_samples) * 2, nb_epoch=5)
+model.fit_generator(train_generator, samples_per_epoch=len(train_samples) * data_multiplier, validation_data=validation_generator, nb_val_samples=len(validation_samples) * data_multiplier, nb_epoch=5)
 
 model.save('model.h5')
 print('Model saved')
