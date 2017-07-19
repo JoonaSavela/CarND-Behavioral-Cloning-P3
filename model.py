@@ -81,5 +81,4 @@ model.fit_generator(train_generator, samples_per_epoch=len(train_samples) * data
 
 model.save('model.h5')
 print('Model saved')
-
-
+model.summary()
