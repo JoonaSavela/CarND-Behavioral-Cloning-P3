@@ -56,7 +56,7 @@ from keras.backend import tf
 from keras.layers import Flatten, Dense, Lambda, Cropping2D, Convolution2D, Dropout, ZeroPadding2D
 
 model = Sequential()
-model.add(Cropping2D(cropping=((int(65*resize_factor),int(25*resize_factor)), (0,0)), input_shape=(int(160*resize_factor), int(320*resize_factor), 3)))
+model.add(Cropping2D(cropping=((int(70*resize_factor),int(25*resize_factor)), (0,0)), input_shape=(int(160*resize_factor), int(320*resize_factor), 3)))
 model.add(Lambda(lambda x: (x / 255.0) - 0.5))
 model.add(Dropout(0.5))
 model.add(Convolution2D(24, 4, 4, subsample=(2, 2), activation='relu'))
