@@ -17,6 +17,7 @@ train_samples, validation_samples = train_test_split(lines, test_size=0.2)
 
 data_multiplier = 6
 correction_factor = 0.2
+resize_factor = 0.5
 
 def generator(samples, batch_size = 8 * data_multiplier):
     num_samples = len(samples)
@@ -32,6 +33,7 @@ def generator(samples, batch_size = 8 * data_multiplier):
                     source_path = batch_sample[i].replace('\\', '/')
                     name = './data/IMG/'+source_path.split('/')[-1]
                     image = cv2.imread(name)
+                    image = cv2.resize(image, (int(320 * resize_factor), int(160 * resize_factor)), interpolation = cv2.INTER_AREA) 
                     correction = (1 / 2) * correction_factor * i * (-3 * i + 5)
                     angle = float(batch_sample[3]) + correction
                     images.append(image)
@@ -54,8 +56,7 @@ from keras.backend import tf
 from keras.layers import Flatten, Dense, Lambda, Cropping2D, Convolution2D, Dropout, ZeroPadding2D
 
 model = Sequential()
-model.add(Lambda(lambda img: tf.image.resize_images(img, (80, 160)), input_shape=(160, 320, 3)))
-model.add(Cropping2D(cropping=((int(65/2),int(25/2)), (0,0))))
+model.add(Cropping2D(cropping=((int(65*resize_factor),int(25*resize_factor)), (0,0)), input_shape=(int(160*resize_factor), int(320*resize_factor), 3)))
 model.add(Lambda(lambda x: (x / 255.0) - 0.5))
 model.add(Convolution2D(24, 5, 5, subsample=(2, 2), activation='relu'))
 model.add(ZeroPadding2D())
