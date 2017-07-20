@@ -5,7 +5,8 @@ import keras
 import sklearn
 
 lines = []
-with open('./data2/driving_log.csv') as csv_file:
+folder = './data2/'
+with open(folder + 'driving_log.csv') as csv_file:
     reader = csv.reader(csv_file)
     next(reader, None)
     for line in reader:
@@ -31,7 +32,7 @@ def generator(samples, batch_size = 8 * data_multiplier):
             for batch_sample in batch_samples:
                 for i in range(3):
                     source_path = batch_sample[i].replace('\\', '/')
-                    name = './data2/IMG/'+source_path.split('/')[-1]
+                    name = folder + 'IMG/' + source_path.split('/')[-1]
                     image = cv2.imread(name)
                     #image = cv2.resize(image, (int(320 * resize_factor), int(160 * resize_factor)), interpolation = cv2.INTER_AREA) 
                     correction = (1 / 2) * correction_factor * i * (-3 * i + 5)
@@ -58,26 +59,25 @@ from keras.layers import Flatten, Dense, Lambda, Cropping2D, Convolution2D, Drop
 model = Sequential()
 model.add(Cropping2D(cropping=((int(70*resize_factor),int(25*resize_factor)), (0,0)), input_shape=(int(160*resize_factor), int(320*resize_factor), 3)))
 model.add(Lambda(lambda x: (x / 255.0) - 0.5))
-model.add(Dropout(0.5))
 model.add(Convolution2D(24, 4, 4, subsample=(2, 2), activation='relu'))
-model.add(Dropout(0.5))
 model.add(Convolution2D(36, 4, 4, subsample=(2, 2), activation='relu'))
-model.add(Dropout(0.5))
 model.add(Convolution2D(48, 4, 4, subsample=(2, 2), activation='relu'))
-model.add(Dropout(0.5))
 model.add(Convolution2D(64, 2, 2, activation='relu'))
-model.add(Dropout(0.5))
 model.add(Convolution2D(64, 1, 1, activation='relu'))
 model.add(Flatten())
+model.add(Dropout(0.5))
 model.add(Dense(100, activation='relu'))
+model.add(Dropout(0.5))
 model.add(Dense(50, activation='relu'))
+model.add(Dropout(0.5))
 model.add(Dense(10, activation='relu'))
+model.add(Dropout(0.5))
 model.add(Dense(1))
 
 model.summary()
 
 model.compile(loss='mse', optimizer='adam')
-model.fit_generator(train_generator, samples_per_epoch=len(train_samples) * data_multiplier, validation_data=validation_generator, nb_val_samples=len(validation_samples) * data_multiplier, nb_epoch=6)
+model.fit_generator(train_generator, samples_per_epoch=len(train_samples) * data_multiplier, validation_data=validation_generator, nb_val_samples=len(validation_samples) * data_multiplier, nb_epoch=5)
 
 model.save('model.h5')
 print('Model saved')
