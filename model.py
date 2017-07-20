@@ -20,7 +20,7 @@ data_multiplier = 6
 correction_factor = 0.2
 resize_factor = 1
 
-def generator(samples, batch_size = 8 * data_multiplier):
+def generator(samples, batch_size = 12 * data_multiplier):
     num_samples = len(samples)
     while 1: # Loop forever so the generator never terminates
         sklearn.utils.shuffle(samples)
@@ -77,7 +77,7 @@ model.add(Dense(1))
 model.summary()
 
 model.compile(loss='mse', optimizer='adam')
-model.fit_generator(train_generator, samples_per_epoch=len(train_samples) * data_multiplier, validation_data=validation_generator, nb_val_samples=len(validation_samples) * data_multiplier, nb_epoch=4)
+model.fit_generator(train_generator, samples_per_epoch=len(train_samples) * data_multiplier, validation_data=validation_generator, nb_val_samples=len(validation_samples) * data_multiplier, nb_epoch=6)
 
 model.save('model.h5')
 print('Model saved')
