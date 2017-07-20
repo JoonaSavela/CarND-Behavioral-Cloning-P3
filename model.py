@@ -5,7 +5,7 @@ import keras
 import sklearn
 
 lines = []
-with open('./data/driving_log.csv') as csv_file:
+with open('./data2/driving_log.csv') as csv_file:
     reader = csv.reader(csv_file)
     next(reader, None)
     for line in reader:
@@ -31,7 +31,7 @@ def generator(samples, batch_size = 8 * data_multiplier):
             for batch_sample in batch_samples:
                 for i in range(3):
                     source_path = batch_sample[i].replace('\\', '/')
-                    name = './data/IMG/'+source_path.split('/')[-1]
+                    name = './data2/IMG/'+source_path.split('/')[-1]
                     image = cv2.imread(name)
                     #image = cv2.resize(image, (int(320 * resize_factor), int(160 * resize_factor)), interpolation = cv2.INTER_AREA) 
                     correction = (1 / 2) * correction_factor * i * (-3 * i + 5)
