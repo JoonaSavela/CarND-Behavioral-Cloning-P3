@@ -17,7 +17,7 @@ train_samples, validation_samples = train_test_split(lines, test_size=0.2)
 
 data_multiplier = 6
 correction_factor = 0.2
-resize_factor = 0.5
+resize_factor = 1
 
 def generator(samples, batch_size = 8 * data_multiplier):
     num_samples = len(samples)
@@ -33,7 +33,7 @@ def generator(samples, batch_size = 8 * data_multiplier):
                     source_path = batch_sample[i].replace('\\', '/')
                     name = './data/IMG/'+source_path.split('/')[-1]
                     image = cv2.imread(name)
-                    image = cv2.resize(image, (int(320 * resize_factor), int(160 * resize_factor)), interpolation = cv2.INTER_AREA) 
+                    #image = cv2.resize(image, (int(320 * resize_factor), int(160 * resize_factor)), interpolation = cv2.INTER_AREA) 
                     correction = (1 / 2) * correction_factor * i * (-3 * i + 5)
                     angle = float(batch_sample[3]) + correction
                     images.append(image)
