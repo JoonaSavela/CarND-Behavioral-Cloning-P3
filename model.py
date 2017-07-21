@@ -20,7 +20,7 @@ data_multiplier = 6
 correction_factor = 0.2
 resize_factor = 1
 
-def generator(samples, batch_size = 12 * data_multiplier):
+def generator(samples, batch_size = 8 * data_multiplier):
     num_samples = len(samples)
     while 1: # Loop forever so the generator never terminates
         sklearn.utils.shuffle(samples)
