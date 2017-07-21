@@ -81,27 +81,45 @@ For details about how I created the training data, see the next section.
 
 #### 1. Solution Design Approach
 
-The overall strategy for deriving a model architecture was to ...
+The overall strategy for deriving a model architecture was to construct a good model, gather good data, and then to test what could be done to improve the performance of the model.
 
-My first step was to use a convolution neural network model similar to the ... I thought this model might be appropriate because ...
+My first step was to use a convolution neural network model similar to the Nvidia's neural network for self-driving cars. I thought this model might be appropriate because it's being used to drive real cars on real roads.
 
-In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that my first model had a low mean squared error on the training set but a high mean squared error on the validation set. This implied that the model was overfitting. 
+I experimented with different techniques in order to improve the performance of the model, such as resizing the image, altering the number of epochs, and changing the dimensions of the network. In the end, I decided not to resize the images, to get as much information as possible in exchange for longer training time. I also decided to use 4 epochs, since any more than that often seemed to overfit the model based on the test driving on the track. Also, the filter sizes of the convolution layers were made smaller because of the resizing process, but they were working fine with the regular sized images so I left them as they were.
 
-To combat the overfitting, I modified the model so that ...
+In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. However, this did little to help me predict how the model would perform on the track. Only when the validation loss would oscillate could I have a clue that the car might not perform well, but even that was not very reliable. The overfitting of the model could be seen much better from test driving on the track. An overfit model would drive out of the track always on the same spots, that is, when the road is curving to the left, the car starts to steer to the right, whereas an underfit model would simply not curve enough to the left.
 
-Then I ... 
+To combat the overfitting, I modified the model by applying dropout layers, and by training the model with 4 epochs (as mentioned earlier). Also, if the model failed on some parts of the road where it earlier had no problems with, and otherwise did well on the track, I would simply retrain the model, since randomness has quite a significant role in training the model.
 
-The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
+The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track because it did not curve enough, implying underfitting. To improve the driving behavior in these cases, I cautiously gathered more driving data from those parts of the road, especially recovery driving data. It was essential not to gather too much of that data, otherwise the model could have overfit to it and could have not been able to drive well on the rest of the track.
 
-At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
+At the end of these processes, the vehicle is able to drive autonomously around the track without leaving the road.
 
 #### 2. Final Model Architecture
 
-The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes ...
+The final model architecture (model.py lines 71-86) consisted of a convolution neural network with the following layers and layer sizes: 
 
-Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
+| Layer  | Description  |
+|----------|--------------------|
+| Input  | (160, 320, 3) image |
+| Cropping2D  | cropping: 70 pixels from the top, 25 pixels from the bottom; output (65, 320, 3)  |
+| Lambda | normalization and mean centering, output (65, 320, 3)  |
+| Convolution 4x4  | 2x2 stride, RELU activation, output (31, 159, 24) |
+| Convolution 4x4  | 2x2 stride, RELU activation, output (14, 78, 36)  |
+| Convolution 4x4  | 2x2 stride, RELU activation, output (6, 38, 48)  |
+| Convolution 2x2  | 1x1 stride, RELU activation, output (5, 37, 64)  |
+| Convolution 1x1  | 1x1 stride, RELU activation, output (5, 37, 64)  |
+| Flatten  |   |
+| Dropout  | drop rate 0.5  |
+| Fully connected  | output 100  |
+| Dropout  | drop rate 0.5  |
+| Fully connected  | output 50  |
+| Dropout  | drop rate 0.5  |
+| Fully connected  | output 10  |
+| Dropout  | drop rate 0.5  |
+| Fully connected (output)  | output 1  |
 
-![alt text][image1]
+Total number of (trainable) parameters in the model is 1,248,915.
 
 #### 3. Creation of the Training Set & Training Process
 
