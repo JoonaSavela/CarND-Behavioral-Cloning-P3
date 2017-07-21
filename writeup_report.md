@@ -18,13 +18,12 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/placeholder.png "Model Visualization"
-[image2]: ./examples/placeholder.png "Grayscaling"
-[image3]: ./examples/placeholder_small.png "Recovery Image"
-[image4]: ./examples/placeholder_small.png "Recovery Image"
-[image5]: ./examples/placeholder_small.png "Recovery Image"
-[image6]: ./examples/placeholder_small.png "Normal Image"
-[image7]: ./examples/placeholder_small.png "Flipped Image"
+[image1]: center_lane_driving.jpg "Center lane driving"
+[image2]: recovery_driving1.jpg "Recovery driving 1"
+[image3]: recovery_driving2.jpg "Recovery driving 2"
+[image4]: recovery_driving3.jpg "Recovery driving 3"
+[image5]: flipped_center_lane_driving.jpg "Flipped training image"
+[image6]: side_camera_image.jpg "Image from a side camera"
 
 ## Rubric Points
 ### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
@@ -123,28 +122,27 @@ Total number of (trainable) parameters in the model is 1,248,915.
 
 #### 3. Creation of the Training Set & Training Process
 
-To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
+To capture good driving behavior, I first recorded five laps laps on track one using center lane driving, three in counter-clockwise direction and two in the clockwise direction. Here is an example image of center lane driving:
+
+![alt text][image1]
+
+I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to stay on the road if it wanders off. These images show what a recovery looks like:
 
 ![alt text][image2]
-
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
-
 ![alt text][image3]
 ![alt text][image4]
+
+To augment the data set, I also flipped images and angles thinking that this would help the model generalize (model.py lines 53-54). For example, here is an image that has then been flipped:
+
+![alt text][image1]
 ![alt text][image5]
 
-Then I repeated this process on track two in order to get more data points.
-
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
+I also decided to use the image data from the side cameras of the car in order to have more data. The angles for the left side images were corrected by adding a correction factor of 0.2 to the (center image) steering angle, and similarly the anlges for the right side images were corrected by subtraction 0.2 (model.py lines 48-49). Here is an image from the left side camera:
 
 ![alt text][image6]
-![alt text][image7]
 
-Etc ....
+The side camera images were also flipped, which means that total data gotten is six times larger than with only unflipped center camera images.
 
-After the collection process, I had X number of data points. I then preprocessed this data by ...
+After the collection and augmentation processes, I had approximately 73,000 amount of data points (images with angles), and after a 20% train/validation split approximately 59,000 data points were used in training.
 
-
-I finally randomly shuffled the data set and put Y% of the data into a validation set. 
-
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+I used this training data for training the model. The validation set helped to determine somewhat if the model might be over or under fitting, but actually testing the model on the track yielded better signs of those. The ideal number of epochs was 4 as mentioned in the earlier section. I used an adam optimizer so that manually training the learning rate wasn't necessary.
