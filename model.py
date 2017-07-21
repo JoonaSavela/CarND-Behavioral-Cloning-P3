@@ -5,19 +5,23 @@ import keras
 import sklearn
 
 lines = []
-folder = './data2/'
+folder = './data2/' # the folder with the data used for training
 with open(folder + 'driving_log.csv') as csv_file:
     reader = csv.reader(csv_file)
-    next(reader, None)
+    next(reader, None) # discard the first (header) line 
     for line in reader:
-        if any(field.strip() for field in line):
+        # only take line which are not blank
+        if any(field.strip() for field in line): 
             lines.append(line)
 
 from sklearn.model_selection import train_test_split
 train_samples, validation_samples = train_test_split(lines, test_size=0.2)
 
+# data multiplier due to data augmentation
 data_multiplier = 6
+# correction factor used with side images
 correction_factor = 0.2
+# leftover variable from resizing attempts
 resize_factor = 1
 
 def generator(samples, batch_size = 8 * data_multiplier):
@@ -30,15 +34,22 @@ def generator(samples, batch_size = 8 * data_multiplier):
             images = []
             angles = []
             for batch_sample in batch_samples:
+                # loop three times for the three images
                 for i in range(3):
+                    # replace the backslashes ("\") of the windows paths with forward slashes ("/")
                     source_path = batch_sample[i].replace('\\', '/')
                     name = folder + 'IMG/' + source_path.split('/')[-1]
                     image = cv2.imread(name)
-                    #image = cv2.resize(image, (int(320 * resize_factor), int(160 * resize_factor)), interpolation = cv2.INTER_AREA) 
+                    #image = cv2.resize(image, (int(320 * resize_factor), int(160 * resize_factor)), interpolation = cv2.INTER_AREA)
+                    # left and right image angle correction:
+                    #   i = 0 -> correction = 0
+                    #   i = 1 -> correction = correction_factor
+                    #   i = 2 -> correction = -correction_factor
                     correction = (1 / 2) * correction_factor * i * (-3 * i + 5)
                     angle = float(batch_sample[3]) + correction
                     images.append(image)
                     angles.append(angle)
+                    # flip the images and angles
                     flipped_image = np.fliplr(image)
                     flipped_angle = -angle
                     images.append(flipped_image)
@@ -54,7 +65,7 @@ validation_generator = generator(validation_samples)
 
 from keras.models import Sequential
 from keras.backend import tf
-from keras.layers import Flatten, Dense, Lambda, Cropping2D, Convolution2D, Dropout, ZeroPadding2D
+from keras.layers import Flatten, Dense, Lambda, Cropping2D, Convolution2D, Dropout
 
 model = Sequential()
 model.add(Cropping2D(cropping=((int(70*resize_factor),int(25*resize_factor)), (0,0)), input_shape=(int(160*resize_factor), int(320*resize_factor), 3)))
