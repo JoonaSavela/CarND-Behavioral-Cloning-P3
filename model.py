@@ -1,5 +1,5 @@
 import csv
-import cv2
+from PIL import Image
 import numpy as np
 import keras
 import sklearn
@@ -39,8 +39,8 @@ def generator(samples, batch_size = 8 * data_multiplier):
                     # replace the backslashes ("\") of the windows paths with forward slashes ("/")
                     source_path = batch_sample[i].replace('\\', '/')
                     name = folder + 'IMG/' + source_path.split('/')[-1]
-                    image = cv2.imread(name)
-                    #image = cv2.resize(image, (int(320 * resize_factor), int(160 * resize_factor)), interpolation = cv2.INTER_AREA)
+                    image = np.asarray(Image.open(name))
+
                     # left and right image angle correction:
                     #   i = 0 -> correction = 0
                     #   i = 1 -> correction = correction_factor
